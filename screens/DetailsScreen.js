@@ -1,29 +1,73 @@
 import React from 'react';
-import { View,Text,ScrollView ,Alert,Image,Modal,Dimensions,FlatList,TextInput} from 'react-native';
+import { View,Text,ScrollView ,Alert,Image,Dimensions,Modal,FlatList,TextInput,AsyncStorage} from 'react-native';
 import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import SearchBox from '../components/SearchBox';
 import StarRating from 'react-native-star-rating';
 import HTML from 'react-native-render-html';
 import Comments from './Comments';
-
+import {addaction} from '../actions/action'
 import { Ionicons } from '@expo/vector-icons';
+
+import Product from '../components/Product';
 
 import { connect } from 'react-redux';
 
- export default class  DetailsScreen extends React.Component {
+  class  DetailsScreen extends React.Component {
   state = {
     starCount: 0,
     page:0,
     loading:false,
-    data:[],
+    data:null,
     comment:"",
+    modalVisible:false,
+    qty:1,
+    color:'red',
+    size:'large',
+    user:0,
+    offer:1,
   };
+  handleData=()=> {
+    let data = this.state.data;
+    data.color=this.state.color;
+    data.size=this.state.size;
+    data.qty=this.state.qty;
+    data.offer=this.state.offer;
+    
+
+    this.setState({
+        data: data
+    })
+}
+checkAuth=async ()=>{
+    const retrievedItem =  await AsyncStorage.getItem('userToken');
+    const item = JSON.parse(retrievedItem);
+    (item!=null)?
+    this.setState({modalVisible:true,user:item.id})
+    :
+    this.props.navigation.navigate('Auth')
+}
+  setModalVisible(visible) {
+    this.setState({modalVisible: visible});
+  }
+  incQty=()=>{
+    if(this.state.qty!=5){
+    this.setState({qty:this.state.qty+1});
+  }
+}
+  decQty=()=>{
+    if(this.state.qty!=1){
+    this.setState({qty:this.state.qty-1});
+  }
+
+
+  }
   componentDidMount(){
     // const id=this.props.navigation.state.params.item.id;
     // const q=`https://huzaifabotique.000webhostapp.com/comment?ProdId=${id}&limit=2&page=${this.state.page}`;
     // console.log(q);
-     this.fetchData();
+    //  this.fetchData();
+    this.setState({data:this.props.navigation.state.params.item,offer:this.props.navigation.state.params.offer});
   }
   fetchData(){
     this.setState({ loading: true });
@@ -130,7 +174,11 @@ import { connect } from 'react-redux';
                     <Text>({this.props.navigation.state.params.item.total})</Text>
               
             <Button style={{backgroundColor:'#E54D42',borderRadius:30}} icon="shopping-cart" mode="contained" 
-            onPress={() => alert('khan') }>
+            onPress={
+             ()=> 
+             this.checkAuth()
+             
+               }>
               Add to card
             </Button>
             </Card.Actions>
@@ -194,6 +242,49 @@ import { connect } from 'react-redux';
 
       </View>
 
+      <Modal
+            presentationStyle='overFullScreen'
+            animationType="slide"
+            transparent={false}
+            visible={this.state.modalVisible}
+            onRequestClose={() => {
+              // alert('Modal has been closed.');
+            }}>
+            <View style={{marginTop: 22}}>
+              <View style={{flexDirection:'row',justifyContent:'flex-end'}}>            
+
+                
+                  <Button onPress={() => {
+                    this.setModalVisible(!this.state.modalVisible);
+                  }}>Close</Button>
+                  
+              </View>
+              <Product navigation={this.props.navigation} 
+               item={this.props.navigation.state.params.item} /> 
+                  
+              {/* <Text>{this.props.navigation.state.params.item.color}</Text> 
+              <Text>{this.props.navigation.state.params.item.size}</Text> 
+              <Text>{this.props.item.qty}</Text> */}
+
+                    <View style={{flexDirection:'row',paddingTop:10}}>
+                        <Button style={{fontSize:40}} onPress={()=>this.decQty()}>-</Button>
+                        <Text style={{top:5,fontSize:20}}>{this.state.qty}</Text>
+                        <Button style={{fontSize:40}} onPress={()=>this.incQty()}>+</Button>
+                    </View>
+              
+              <Button style={{backgroundColor:'#E54D42'}} icon="shopping-cart" mode="contained" 
+            onPress={
+              () => {
+                  this.handleData()
+                    ,this.props.addToCart(this.state.data,this.state.user) 
+                  }
+               }>
+              Add to card
+            </Button>
+            
+            </View>
+            </Modal>
+
           </ScrollView> 
         
           
@@ -230,4 +321,15 @@ DetailsScreen.navigationOptions = {
   // headerRight:<SearchBox />,
 };
 
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+      // removeItem: (product) => dispatch({ type: 'REMOVE_FROM_CART', payload: product }),
+      // additem: (product) => dispatch({ type: 'ADD_TO_CART', payload: product }),
+      // loadItems: () => { dispatch(myaction()) },
+      addToCart: (product,user) => { dispatch(addaction(product,user)) },
+  }
+}
+
+export default connect(null, mapDispatchToProps)(DetailsScreen);
 

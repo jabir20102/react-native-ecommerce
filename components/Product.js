@@ -30,7 +30,7 @@ import { Ionicons } from '@expo/vector-icons';
                   </View>
                   <View style={{width:190}}>
                   <Text  style={{fontWeight:'400',fontSize:16}} 
-                     onPress={() => this.props.navigation.navigate('Details',{item:this.props.item})} > 
+                     onPress={() => this.props.navigation.navigate('Details',{item:this.props.item,offer:1})} > 
                     {this.props.item.title}
                     {/* {this.props.item.name.last.length>5?this.props.item.name.last.substring(0, 5)+"...":this.props.item.name.last} */}
                   </Text> 

@@ -1,14 +1,16 @@
 import * as WebBrowser from 'expo-web-browser';
 import React from 'react';
-import { View,Text,StyleSheet ,Alert,FlatList,ActivityIndicator,ScrollView,Image} from 'react-native';
+import { View,Text,StyleSheet ,AsyncStorage,FlatList,ActivityIndicator,ScrollView,Image} from 'react-native';
 import {  Button, Card, Title, Paragraph } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { connect } from 'react-redux';
 import SearchBox from '../components/SearchBox';
 import Product from '../components/Product';
 import Categories from '../components/Categories';
 import FlashProducts from './FlashProducts';
+import {myaction} from '../actions/action';
 
-export default class HomeScreen extends React.Component {
+ class HomeScreen extends React.Component {
   
   state = {
     data: [],
@@ -17,29 +19,42 @@ export default class HomeScreen extends React.Component {
     finish:false,
   };
 
+  async componentDidMount(){
+    try{
+    const retrievedItem =  await AsyncStorage.getItem('userToken');
+    const item = JSON.parse(retrievedItem);
+    (item!=null)?
+    this.props.loadItems(item.id)
+    :
+    this.props.loadItems(0);
+    }catch(err){
+      console.log(err)
+    }
+  }
+
   componentWillMount() {
+    
     this.fetchData();
   }
 
+
   fetchData = async () => {
     this.setState({ loading: true });
+    console.log("loaded trend .. "+this.state.page);
     fetch(`https://huzaifabotique.000webhostapp.com/getProducts?limit=2&page=${this.state.page}` // get
 )
 .then((response) => response.json())
     .then((json) => {
       if(Object.keys(json).length==0 ){
-          // if(Object.keys(json.results).length==0 ){
           this.setState(state => ({
             finish: true
           }));
         }
         this.setState(state => ({
-          // data: [...state.data, ...json.results],
           data: [...state.data, ...json],
           loading: false
         }));
         
-      console.log("loaded trend .. "+this.state.page);
     })
     .catch((error) => {
       console.error(error);
@@ -117,6 +132,7 @@ export default class HomeScreen extends React.Component {
   }      // render close
 
 }
+
  HomeScreen.navigationOptions = {
   title: 'Home',
   // headerTitle:<SearchBox title="Home" />,
@@ -130,6 +146,19 @@ export default class HomeScreen extends React.Component {
   // headerRight:<SearchBox />,
 };
 
+
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+      // removeItem: (product) => dispatch({ type: 'REMOVE_FROM_CART', payload: product }),
+      additem: (product) => dispatch({ type: 'ADD_TO_CART', payload: product }),
+      loadItems: (user) => { dispatch(myaction(user)) },
+  }
+}
+
+
+
+export default connect(null, mapDispatchToProps)(HomeScreen);
 
 const styles = StyleSheet.create({
   container: {

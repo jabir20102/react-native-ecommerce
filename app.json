@@ -25,6 +25,10 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
-  }
+    },
+    "description": "",
+    "entryPoint": "node_modules/expo/AppEntry.js"
+  },
+  "displayName": "Shopping Ki Dunya",
+  "name": "shoppingKiDunya"
 }

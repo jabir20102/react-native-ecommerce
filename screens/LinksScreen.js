@@ -1,81 +1,77 @@
-import * as React from 'react';
-import {ScrollView, View,TouchableOpacity,Image,Dimensions  } from 'react-native';
-import { RadioButton, Text,Button } from 'react-native-paper';
-import {   Card, Title, Paragraph } from 'react-native-paper';
-import { Dropdown } from 'react-native-material-dropdown';
-import PhotoGrid from 'react-native-image-grid';
-import SearchBox from '../components/SearchBox';
-import ImageViewer from 'react-native-image-zoom-viewer';
+import * as WebBrowser from 'expo-web-browser';
+import React from 'react';
+import { View,Text,StyleSheet ,Alert,FlatList,ActivityIndicator,ScrollView,Image} from 'react-native';
+import {  Button, Card, Title, Paragraph } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
-// import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
-export default class LinksScreen extends React.Component {
-  state = {
-    values: [3, 7],
-};
+import { connect } from 'react-redux';
+import SearchBox from '../components/SearchBox';
+import CartItem from '../components/CartItem';
+import {deleteaction} from '../actions/action';
 
-multiSliderValuesChange = (values) => {
-    this.setState({
-        values,
-    });
+class LinksScreen extends React.Component {
+state={
+totalPrice:0,
 }
-  constructor() {
-    super();
-    this.state = { 
-      items: [],
-      value:'first'
-     };
-  }
+  componentWillMount(){
 
-  componentDidMount() {
-   
+    var total=0;
+    // this.props.data.map((item, index) => {
+    //   (parseFloat(item.offer)!=1)?
+    //   total+=parseFloat(item.price)*(1-parseFloat(item.offer))*(parseFloat(item.qty))
+    //   :
+    //   total+=parseFloat(item.price)*(parseFloat(item.qty))
+    // })
+    // this.setState({totalPrice:total})  
+
   }
 
   render() {
-    return(
-      <ScrollView>
-            
-        {/* <MultiSlider
-                    values={[this.state.values[0], this.state.values[1]]}
-                    sliderLength={280}
-                    onValuesChange={this.multiSliderValuesChange}
-                    min={0}
-                    max={10}
-                    step={1}
-                />
-                <Text style={styles.text}>Two Markers:</Text>
-                <Text style={styles.text}>{this.state.values[0]}</Text>
-                <Text style={styles.text}>{this.state.values[1]}</Text> */}
-                
+      return (
         
-       
-       
-       
-     
+        <View style={{backgroundColor:'#cdcdcd',paddingBottom:40}}>
+         <View style={{backgroundColor:'#5C6A77',color:'#fff',fontSize:30,height:40,padding:10}}>
+            <Text  style={{color:'#fff'}}>
+                Cart Products {this.props.data.length}
+            </Text>
+          </View>
+          
+        <FlatList 
+        // onMomentumScrollEnd={this.handleEnd}
+            // onEndReachedThreshold={0.5}
+            // onEndReached={this.handleEnd}
+            data={this.props.data}
+            // onRefresh={this.refresh}
+            // refreshing={this.state.loading}
+            // horizontal={true}
+            renderItem={ ({item,index}) =>  
+        
+            <CartItem delete={this.props.deleteItem} navigation={this.props.navigation}  item={item} />            
 
-      <View style={{ flexDirection: 'row'}}>
-      {/* <RangeSlider
-          style={{width: 160, height: 80}}
-          gravity={'center'}
-          min={200}
-          max={1000}
-          step={20}
-          selectionColor="#3df"
-          blankColor="#f618"
-          onValueChanged={(low, high, fromUser) => {
-              this.setState({rangeLow: low, rangeHigh: high})
-          }}
-          /> */}
-    </View>
+          }
+          keyExtractor={({id}, index) => '__'+index}
+          
+          /> 
 
-    </ScrollView>
-    )
-  }
- 
+          <View style={{flexDirection:'row'}}>
+            <View>
+              <Text>Total {this.props.data.length}</Text>
+              <Text>Total Rs. {
+                this.state.totalPrice            
+              }</Text>
+            </View>
+            <Button onPress={()=>alert('checkout')}>Check out</Button>
+          </View>
+
+
+        </View>
+      );
+  }      // render close
+
 }
-
-LinksScreen.navigationOptions = {
-  title: 'Links',
+ LinksScreen.navigationOptions = {
+  title: 'Cart',
+  // headerTitle:<SearchBox title="Home" />,
   headerStyle: {
     backgroundColor: '#2C3E4F',
   },
@@ -83,6 +79,25 @@ LinksScreen.navigationOptions = {
   headerTitleStyle: {
     fontWeight: 'bold',
   },
-  headerRight:<SearchBox />,
-  
+  // headerRight:<SearchBox />,
 };
+
+
+const mapStateToProps = (state) => {
+  return {
+      data: state
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+      // removeItem: (product) => dispatch({ type: 'REMOVE_FROM_CART', payload: product }),
+      additem: (product) => dispatch({ type: 'ADD_TO_CART', payload: product }),
+      loadItems: () => { dispatch(myaction()) },
+      deleteItem: (id) => { dispatch(deleteaction(id)) },
+  }
+}
+
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(LinksScreen);

@@ -56,9 +56,8 @@ state={
 )
 .then((response) => response.json())
     .then((responseJson) => {
-      // console.log(responseJson);
       if(responseJson.id!=null){
-         AsyncStorage.setItem('userToken', 'abc')
+         AsyncStorage.setItem('userToken', JSON.stringify(responseJson))
          .then(()=>{});
         this.props.navigation.navigate('App');
       }else{

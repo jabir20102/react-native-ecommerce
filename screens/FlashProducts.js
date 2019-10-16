@@ -71,7 +71,7 @@ export default class FlashProducts extends React.Component {
             renderItem={({item}) =>  
         
             <Card style={{margin:5,width:170}}
-             onPress={() => this.props.navigation.navigate('Details',{item:item})}>     
+             onPress={() => this.props.navigation.navigate('Details',{item:item,offer:item.percent})}>     
             <Card.Content>       
             <Card.Cover source={{ uri:"http://huzaifabotique.000webhostapp.com/"+ item.url }}
              style={{ height: 150, left: 0, right: 0 }}
