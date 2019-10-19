@@ -8,7 +8,7 @@ import SearchBox from '../components/SearchBox';
 import Product from '../components/Product';
 import Categories from '../components/Categories';
 import FlashProducts from './FlashProducts';
-import {myaction} from '../actions/action';
+import {myaction,myaction2} from '../actions/action';
 
  class HomeScreen extends React.Component {
   
@@ -23,10 +23,12 @@ import {myaction} from '../actions/action';
     try{
     const retrievedItem =  await AsyncStorage.getItem('userToken');
     const item = JSON.parse(retrievedItem);
-    (item!=null)?
-    this.props.loadItems(item.id)
-    :
+    if(item!=null){
+    this.props.loadItems(item.id);
+    this.props.loadWishList(item.id);
+    }else{
     this.props.loadItems(0);
+    }
     }catch(err){
       console.log(err)
     }
@@ -36,9 +38,8 @@ import {myaction} from '../actions/action';
     
     this.fetchData();
   }
-
-
-  fetchData = async () => {
+  
+  fetchData =  () => {
     this.setState({ loading: true });
     console.log("loaded trend .. "+this.state.page);
     fetch(`https://huzaifabotique.000webhostapp.com/getProducts?limit=2&page=${this.state.page}` // get
@@ -153,6 +154,7 @@ const mapDispatchToProps = (dispatch) => {
       // removeItem: (product) => dispatch({ type: 'REMOVE_FROM_CART', payload: product }),
       additem: (product) => dispatch({ type: 'ADD_TO_CART', payload: product }),
       loadItems: (user) => { dispatch(myaction(user)) },
+      loadWishList: (user) => { dispatch(myaction2(user)) },
   }
 }
 

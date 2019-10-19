@@ -9,16 +9,15 @@ import DetailsScreen from '../screens/DetailsScreen';
 import SubCategory from '../screens/SubCategory';
 
 import MyAccountScreen from '../screens/MyAccountScreen';
+import MyWishListScreen from '../screens/MyWishListScreen';
 import SignInScreen from '../screens/SignInScreen';
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 
-import MySettings from '../screens/settings/MySettings';
-import MyWishList from '../screens/wishList/MyWishList';
 import FilterProducts from '../screens/FilterProducts';
 import SignupScreen from '../screens/SignupScreen';
 import Reviews from '../screens/Reviews';
 import SearchScreen from '../screens/SearchScreen';
-import SearchBox from '../components/SearchBox';
+// import SearchBox from '../components/SearchBox';
 
 const config = Platform.select({
   web: { headerMode: 'screen' },
@@ -54,6 +53,7 @@ HomeStack.navigationOptions = {
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
+      badge='home'
       name={
         Platform.OS === 'ios'
           ? `ios-information-circle${focused ? '' : '-outline'}`
@@ -77,16 +77,15 @@ const LinksStack = createStackNavigator(
 LinksStack.navigationOptions = {
   tabBarLabel: 'Cart',
   tabBarIcon: ({ focused }) => (
-    <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-cart' : 'md-cart'} />
+    <TabBarIcon focused={focused} badge='cart' name={Platform.OS === 'ios' ? 'ios-cart' : 'md-cart'} />
   ),
- 
 };
 LinksStack.path = '';
 
 
-const AppStack = createStackNavigator({ MyAccount: MyAccountScreen });
-const WishStack = createStackNavigator({ myWishList: MyWishList });
-const SettingStack = createStackNavigator({ mySettings: MySettings });
+const AppStack = createStackNavigator({ MyAccount: MyAccountScreen,MyWishList:MyWishListScreen});
+// const WishStack = createStackNavigator({ myWishList: MyWishList });
+// const SettingStack = createStackNavigator({ mySettings: MySettings });
 const AuthStack = createStackNavigator({ SignIn: SignInScreen,Signup:SignupScreen });
 
 const SettingsStack = createAppContainer(
@@ -114,7 +113,7 @@ const SettingsStack = createAppContainer(
 SettingsStack.navigationOptions = {
   tabBarLabel: 'Settings',
   tabBarIcon: ({ focused }) => (
-    <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} />
+    <TabBarIcon focused={focused} badge='account' name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} />
   ),
   
 };

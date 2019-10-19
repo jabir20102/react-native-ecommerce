@@ -6,7 +6,7 @@ import SearchBox from '../components/SearchBox';
 import StarRating from 'react-native-star-rating';
 import HTML from 'react-native-render-html';
 import Comments from './Comments';
-import {addaction} from '../actions/action'
+import {addaction,addaction2,deleteaction2} from '../actions/action'
 import { Ionicons } from '@expo/vector-icons';
 
 import Product from '../components/Product';
@@ -26,6 +26,7 @@ import { connect } from 'react-redux';
     size:'large',
     user:0,
     offer:1,
+    liked:0,
   };
   handleData=()=> {
     let data = this.state.data;
@@ -44,8 +45,20 @@ checkAuth=async ()=>{
     const item = JSON.parse(retrievedItem);
     (item!=null)?
     this.setState({modalVisible:true,user:item.id})
-    :
+    : 
     this.props.navigation.navigate('Auth')
+}
+checkAuth2=async ()=>{
+    const retrievedItem =  await AsyncStorage.getItem('userToken');
+    const item = JSON.parse(retrievedItem);
+    
+    if(item!=null){
+    this.props.addToWishList(this.state.data,item.id);
+    this.setState({liked:1});
+    }else{
+    this.props.navigation.navigate('Auth')
+    }
+    
 }
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
@@ -68,6 +81,13 @@ checkAuth=async ()=>{
     // console.log(q);
     //  this.fetchData();
     this.setState({data:this.props.navigation.state.params.item,offer:this.props.navigation.state.params.offer});
+    const id=this.props.navigation.state.params.item.id;
+    var result = this.props.data.filter(x => x.id === id);
+    
+    (result.length>0)?
+    this.setState({liked:result[0].wishlist_id})
+    :
+    this.setState({liked:0})
   }
   fetchData(){
     this.setState({ loading: true });
@@ -108,12 +128,10 @@ checkAuth=async ()=>{
     )
     .then((response) => response.json())
         .then((responseJson) => {
-          console.log(responseJson);
           alert(responseJson);
           this.setState({starCount:0});
         })
         .catch((error) => {
-          console.error(error);
           alert(error);
         });
   }
@@ -151,7 +169,11 @@ checkAuth=async ()=>{
               <View style={{flexDirection:'row',justifyContent:'space-between'}}>
               <Title>Rs. {this.props.navigation.state.params.item.price}</Title>
               <View style={{flexDirection:'row',margin:5}}>
-                <Ionicons name="md-heart-empty" size={25} color={'#000'} style={{marginRight:10}}/>
+              {(this.state.liked!=0)?
+                <Ionicons onPress={()=>  {this.props.deletefromWishList(this.state.liked),this.setState({liked:0})} } name="md-heart" size={25} color={'#000'} style={{marginRight:10}}/>
+                :
+                <Ionicons onPress={()=>  this.checkAuth2()   } name="md-heart-empty" size={25} color={'#000'} style={{marginRight:10}}/>
+              }
                 <Ionicons name="md-share" size={25} color={'#000'}  />
               </View>
               </View>
@@ -321,6 +343,12 @@ DetailsScreen.navigationOptions = {
   // headerRight:<SearchBox />,
 };
 
+const mapStateToProps = (state) => {
+  return {
+      data: state.wishList
+  }
+}
+
 
 const mapDispatchToProps = (dispatch) => {
   return {
@@ -328,8 +356,10 @@ const mapDispatchToProps = (dispatch) => {
       // additem: (product) => dispatch({ type: 'ADD_TO_CART', payload: product }),
       // loadItems: () => { dispatch(myaction()) },
       addToCart: (product,user) => { dispatch(addaction(product,user)) },
+      addToWishList: (product,user) => { dispatch(addaction2(product,user)) },
+      deletefromWishList: (id) => { dispatch(deleteaction2(id)) },
   }
 }
 
-export default connect(null, mapDispatchToProps)(DetailsScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(DetailsScreen);
 

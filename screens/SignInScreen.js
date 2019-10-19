@@ -9,11 +9,13 @@ import {
   TextInput,
   Text,
 } from 'react-native';
+import {connect} from 'react-redux';
+import {myaction} from '../actions/action';
 
-export default class SignInScreen extends React.Component {
+ class SignInScreen extends React.Component {
 state={
-  email:'',
-  pass:'',
+  email:'khan',
+  pass:'khan',
 }
   render() {
     return (
@@ -28,7 +30,7 @@ state={
                     autoCorrect={false}
                 />
         <TextInput style={{ height: 40, borderWidth: 1,padding:10,marginBottom:10}}
-                    value={this.state.password}
+                    value={this.state.pass}
                     onChangeText={(text) => { this.setState({pass: text}) }}
                     placeholder="Password"
                     secureTextEntry={true}
@@ -41,32 +43,38 @@ state={
     );
   }
 
-  _signInAsync = async () => {
+  _signInAsync =  () => {
     let formData=new FormData();
     formData.append('email',this.state.email);
     formData.append('pass',this.state.pass);
     formData.append('signin','1');
+    
 
     // fetch('http://192.168.3.135:80/fyp/auth'
-    fetch('https://huzaifabotique.000webhostapp.com/auth'  // post 
+    fetch('http://huzaifabotique.000webhostapp.com/auth'  // post 
     , {
       method: 'POST',
       body:formData,
       }
 )
-.then((response) => response.json())
+.then((response) => 
+// alert(response) )
+response.json())
     .then((responseJson) => {
       if(responseJson.id!=null){
+        this.props.loadItems(responseJson.id);
          AsyncStorage.setItem('userToken', JSON.stringify(responseJson))
          .then(()=>{});
+         
         this.props.navigation.navigate('App');
       }else{
       alert(responseJson)
       } 
-    })
+    }
+    )
     .catch((error) => {
       console.error(error);
-      alert(error);
+      alert(error.message);
     });
     
   };
@@ -84,3 +92,13 @@ SignInScreen.navigationOptions = {
     // headerRight:<SearchBox />,
     
   };
+
+  const mapDispatchToProps = (dispatch) => {
+    return {
+        loadItems: (user) => { dispatch(myaction(user)) },
+    }
+  }
+  
+  
+  
+  export default connect(null, mapDispatchToProps)(SignInScreen);

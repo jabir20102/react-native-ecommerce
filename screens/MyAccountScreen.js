@@ -2,37 +2,65 @@ import React from 'react';
 import {
   ActivityIndicator,
   AsyncStorage,
-  Button,
+  // Button,
   StatusBar,
   StyleSheet,
   View,
+  Image,
+  // Text,
+  
 } from 'react-native';
+import {  Button, Card, Title, TextInput } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 
-// import { createStackNavigator, createSwitchNavigator, createAppContainer } from 'react-navigation';
-// import MySettings from './Settings/MySettings';
-// import MyWishList from './wishList/MyWishList';
 
-// const settingsStack = createStackNavigator({ mysettings: MySettings });
-// const wishlistStack = createStackNavigator({ mywishlist: MyWishList });
-
-// export default MyAccountScreen = createAppContainer(
-//     createSwitchNavigator(
-//     {
-//       settings: settingsStack,
-//       wishList: wishlistStack,
-//     },
-//     {
-//       initialRouteName: 'wishList',
-//     }
-//   ));
 
 export default class  MyAccountScreen extends React.Component{
-
+  state={
+    name:'',
+    email:'',
+    image:''
+  }
+async componentWillMount(){
+  const retrievedItem =  await AsyncStorage.getItem('userToken');
+    const item = JSON.parse(retrievedItem);
+    this.setState({name:item.name,email:item.email,image:item.image_url});
+}
     render() {
       return (
         <View style={{flex:1}}>
-          <Button style={{margin:10}} title="Post" onPress={this._showMoreApp} />
-          <Button title="sign out" onPress={this._signOutAsync} />
+
+
+          <Button onPress={()=> this.props.navigation.navigate('MyWishList',{offer:1}) }>My Wishlist</Button>
+
+          
+          <View style={{flexDirection:'row',alignItems:'center'}}>
+          <Ionicons name="md-search" size={30}                  
+        />
+        <TextInput
+        style={{width:'100%'}}
+        label='Name'
+        />
+
+            </View>
+          
+         
+
+          
+
+               
+
+           <Image source={{ uri:"https://huzaifabotique.000webhostapp.com/"+this.state.image }} 
+                  style={{ height: 100,width:100, left: 0}}
+                  resizeMode='center' />
+          <TextInput
+          placeholder='Name...'
+          value={this.state.name} />
+          <TextInput 
+          placeholder='Email...'
+          value={this.state.email} />
+          <Button style={{margin:10}}  onPress={this._showMoreApp} >POST</Button>
+          <Button onPress={this._signOutAsync} >sign out</Button>
         </View>
       );
     }
@@ -260,3 +288,4 @@ MyAccountScreen.navigationOptions = {
 //   }
  
 // });
+
