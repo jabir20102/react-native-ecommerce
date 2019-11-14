@@ -5,11 +5,11 @@ import {  Button, Card, Title, Paragraph } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 
 import { connect } from 'react-redux';
-import SearchBox from '../components/SearchBox';
-import CartItem from '../components/CartItem';
-import {deleteaction} from '../actions/action';
+// import SearchBox from '.../components/SearchBox';
+import Review  from '../components/Review';
+import {deleteaction3} from '../actions/action';
 
-class LinksScreen extends React.Component {
+class MyReviewsScreen extends React.Component {
 state={
 totalPrice:0,
 }
@@ -23,6 +23,7 @@ totalPrice:0,
     //   total+=parseFloat(item.price)*(parseFloat(item.qty))
     // })
     // this.setState({totalPrice:total})  
+    console.log(this.props.data);
 
   }
 
@@ -32,7 +33,7 @@ totalPrice:0,
         <View style={{backgroundColor:'#cdcdcd',flex:1}}>
          <View style={{backgroundColor:'#5C6A77',color:'#fff',fontSize:30,height:40,padding:10}}>
             <Text  style={{color:'#fff'}}>
-                Cart Products {this.props.data.length}
+                My Reviews {this.props.data.length}
             </Text>
           </View>
           
@@ -40,22 +41,16 @@ totalPrice:0,
             data={this.props.data}
             renderItem={ ({item,index}) =>  
         
-            <CartItem delete={this.props.deleteItem} navigation={this.props.navigation}  item={item} />            
+            <Review 
+            delete={this.props.deleteItem} 
+            //  navigation={this.props.navigation}
+            item={item} 
+            />            
 
           }
           keyExtractor={({id}, index) => '__'+index}
           
           /> 
-
-          <View style={{flexDirection:'row'}}>
-            <View>
-              <Text>Total {this.props.data.length}</Text>
-              <Text>Total Rs. {
-                this.state.totalPrice            
-              }</Text>
-            </View>
-            <Button onPress={()=>alert('checkout')}>Check out</Button>
-          </View>
 
 
         </View>
@@ -63,8 +58,8 @@ totalPrice:0,
   }      // render close
 
 }
- LinksScreen.navigationOptions = {
-  title: 'Cart',
+MyReviewsScreen.navigationOptions = {
+  title: 'My Reviews',
   // headerTitle:<SearchBox title="Home" />,
   headerStyle: {
     backgroundColor: '#2C3E4F',
@@ -79,18 +74,18 @@ totalPrice:0,
 
 const mapStateToProps = (state) => {
   return {
-      data: state.cartItems
+      data: state.reviews
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-      additem: (product) => dispatch({ type: 'ADD_TO_CART', payload: product }),
-      loadItems: () => { dispatch(myaction()) },
-      deleteItem: (id) => { dispatch(deleteaction(id)) },
+      // additem: (product) => dispatch({ type: 'ADD_TO_CART', payload: product }),
+      // loadItems: () => { dispatch(myaction()) },
+      deleteItem: (id) => { dispatch(deleteaction3(id)) },
   }
 }
 
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(LinksScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(MyReviewsScreen);

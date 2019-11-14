@@ -77,7 +77,7 @@ export default class SubCategory extends React.Component {
 
           }
             // numColumns={3}
-            keyExtractor={({id}, index) => id}
+            keyExtractor={({id}, index) => '_'+index}
           
           />
         </View>

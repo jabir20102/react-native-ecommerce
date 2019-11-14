@@ -16,7 +16,7 @@ import Colors from '../constants/Colors';
               style={{ marginBottom: -3 }}
               color={this.props.focused ? Colors.tabIconSelected : Colors.tabIconDefault}
             />
-          {(this.props.badge=='cart')?
+          {(this.props.badge=='cart' && this.props.data.length>0)?
             <View style={{ position: 'absolute', left: 18, top: 0, backgroundColor: 'red', borderRadius: 9, width: 18, height: 18, justifyContent: 'center', alignItems: 'center' }}>
               <Text style={{ color: 'white' }}>{this.props.data.length}</Text>
             </View>

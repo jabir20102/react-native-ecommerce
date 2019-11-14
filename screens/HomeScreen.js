@@ -8,7 +8,7 @@ import SearchBox from '../components/SearchBox';
 import Product from '../components/Product';
 import Categories from '../components/Categories';
 import FlashProducts from './FlashProducts';
-import {myaction,myaction2} from '../actions/action';
+import {myaction,myaction2,myaction3} from '../actions/action';
 
  class HomeScreen extends React.Component {
   
@@ -26,6 +26,7 @@ import {myaction,myaction2} from '../actions/action';
     if(item!=null){
     this.props.loadItems(item.id);
     this.props.loadWishList(item.id);
+    this.props.loadReviews(item.email);
     }else{
     this.props.loadItems(0);
     }
@@ -42,7 +43,7 @@ import {myaction,myaction2} from '../actions/action';
   fetchData =  () => {
     this.setState({ loading: true });
     console.log("loaded trend .. "+this.state.page);
-    fetch(`https://huzaifabotique.000webhostapp.com/getProducts?limit=2&page=${this.state.page}` // get
+    fetch(`https://huzaifabotique.000webhostapp.com/getProducts?orderBy=visits&limit=2&page=${this.state.page}` // get
 )
 .then((response) => response.json())
     .then((json) => {
@@ -73,12 +74,12 @@ import {myaction,myaction2} from '../actions/action';
   refresh = () => {
     // alert('refresh');
     // this.setState({ page: 0 ,data:[]});
-    this.setState(state => ({
+    this.setState({
       // data: [...state.data, ...json.results],
       data: [],
       page: 0
-    }));
-    this.fetchData();
+    },this.fetchData());
+    
   };
   
 
@@ -86,20 +87,21 @@ import {myaction,myaction2} from '../actions/action';
     if (this.state.loading && this.state.page==0) {
       return (
         <View style={styles.container}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="small" />
         </View>
       );
     } else {
       return (
-        <View style={{backgroundColor:'#cdcdcd',paddingBottom:40}}>
-         <View style={{backgroundColor:'#5C6A77',color:'#fff',fontSize:30,height:40,padding:10}}>
-            <Text  style={{color:'#fff'}}>
-                Trending Products {this.state.data.length}
+        <View style={{backgroundColor:'#cdcdcd',paddingBottom:90,alignItems:'center'}}>
+         <View style={{backgroundColor:'#5C6A77',color:'#fff',fontSize:30,padding:5,width:'100%'}}>
+             <Categories navigation={this.props.navigation}/> 
+             <Text  style={{color:'#fff'}}>
+                Trending Products 
             </Text>
           </View>
           
+          
         <FlatList 
-        // onMomentumScrollEnd={this.handleEnd}
             onEndReachedThreshold={0.5}
             onEndReached={this.handleEnd}
             data={this.state.data}
@@ -110,9 +112,7 @@ import {myaction,myaction2} from '../actions/action';
         
             (index==0)? 
             <View>
-                     
-              <Categories navigation={this.props.navigation}/>         
-              
+               
               <FlashProducts navigation={this.props.navigation}/>
               <Product navigation={this.props.navigation}  item={item} /> 
             </View>
@@ -155,6 +155,7 @@ const mapDispatchToProps = (dispatch) => {
       additem: (product) => dispatch({ type: 'ADD_TO_CART', payload: product }),
       loadItems: (user) => { dispatch(myaction(user)) },
       loadWishList: (user) => { dispatch(myaction2(user)) },
+      loadReviews: (user) => { dispatch(myaction3(user)) },
   }
 }
 

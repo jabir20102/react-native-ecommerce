@@ -1,12 +1,12 @@
 import React from 'react';
-import { View,Text,ScrollView ,Alert,Image,Dimensions,Modal,FlatList,TextInput,AsyncStorage} from 'react-native';
+import { View,Text,ScrollView ,Alert,Image,Dimensions,Modal,Share,TextInput,AsyncStorage,ActivityIndicator} from 'react-native';
 import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import SearchBox from '../components/SearchBox';
 import StarRating from 'react-native-star-rating';
 import HTML from 'react-native-render-html';
 import Comments from './Comments';
-import {addaction,addaction2,deleteaction2} from '../actions/action'
+import {addaction,addaction2,addaction3,deleteaction2,deleteaction3} from '../actions/action'
 import { Ionicons } from '@expo/vector-icons';
 
 import Product from '../components/Product';
@@ -27,6 +27,9 @@ import { connect } from 'react-redux';
     user:0,
     offer:1,
     liked:0,
+    yourComment:'',
+    yourStars:0,
+    user:null,
   };
   handleData=()=> {
     let data = this.state.data;
@@ -40,6 +43,7 @@ import { connect } from 'react-redux';
         data: data
     })
 }
+//    for the modal
 checkAuth=async ()=>{
     const retrievedItem =  await AsyncStorage.getItem('userToken');
     const item = JSON.parse(retrievedItem);
@@ -48,18 +52,19 @@ checkAuth=async ()=>{
     : 
     this.props.navigation.navigate('Auth')
 }
+//  for the the wishlist
 checkAuth2=async ()=>{
-    const retrievedItem =  await AsyncStorage.getItem('userToken');
-    const item = JSON.parse(retrievedItem);
     
-    if(item!=null){
-    this.props.addToWishList(this.state.data,item.id);
+    if(this.state.user!=null){
+    await this.props.loading();
+    this.props.addToWishList(this.state.data,this.state.user.id);
     this.setState({liked:1});
     }else{
     this.props.navigation.navigate('Auth')
     }
     
 }
+
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
   }
@@ -72,73 +77,92 @@ checkAuth2=async ()=>{
     if(this.state.qty!=1){
     this.setState({qty:this.state.qty-1});
   }
-
-
   }
-  componentDidMount(){
+  async componentDidMount(){
     // const id=this.props.navigation.state.params.item.id;
     // const q=`https://huzaifabotique.000webhostapp.com/comment?ProdId=${id}&limit=2&page=${this.state.page}`;
     // console.log(q);
     //  this.fetchData();
+    const retrievedItem =  await AsyncStorage.getItem('userToken');
+    const item = JSON.parse(retrievedItem);
+    if(item!=null){
+    this.setState({user:item})
+    }else{
+    this.setState({user:null})
+    }
     this.setState({data:this.props.navigation.state.params.item,offer:this.props.navigation.state.params.offer});
     const id=this.props.navigation.state.params.item.id;
     var result = this.props.data.filter(x => x.id === id);
     
-    (result.length>0)?
+    if(result.length>0){
     this.setState({liked:result[0].wishlist_id})
-    :
+    }else{
     this.setState({liked:0})
+    }
+
+    this.checkReview();
   }
-  fetchData(){
-    this.setState({ loading: true });
-    const id=this.props.navigation.state.params.item.id;
-    fetch(`https://huzaifabotique.000webhostapp.com/comment?calculate=${id}` // get
-)
-.then((response) => response.json())
-    .then((json) => {
+  checkReview(){
       
-        this.setState(state => ({
-          data: [...state.data, ...json],
-          loading: true
-        }));
-        // alert("home:"+this.state.page);
-      // console.log(this.state.data);
-      // alert(responseJson)
-    })
-    .catch((error) => {
-      console.error(error);
-      alert(error);
-    });
+      
+      if(this.state.user!=null){
+            const id=this.props.navigation.state.params.item.id;
+            var result2 = this.props.reviews.filter(x => x.product_id === id);     
+            if(result2.length>0){
+            this.setState({yourStars:result2[0].comment_id,comment:result2[0].comment,starCount:result2[0].stars})
+            }else{
+            this.setState({yourStars:0})
+            }
+        }else{
+        this.props.navigation.navigate('Auth')
+        } 
+
+      
   }
+  
   //  for the posting a review
-  postComment(){
-    const id=this.props.navigation.state.params.item.id;
-    let formData=new FormData();
-    formData.append('name','Jabir');
-    formData.append('email','khan@gmail.com');
-    formData.append('comment',this.state.comment);
-    formData.append('stars',this.state.starCount);
-    formData.append('isApproved','1');
-    formData.append('product_id',id);
-    fetch(`https://huzaifabotique.000webhostapp.com/comment` // post
- , {
-      method: 'POST',
-      body:formData,
-      }
-    )
-    .then((response) => response.json())
-        .then((responseJson) => {
-          alert(responseJson);
-          this.setState({starCount:0});
-        })
-        .catch((error) => {
-          alert(error);
-        });
+   async postComment (){
+      const id=this.props.navigation.state.params.item.id;
+     await this.props.addReview(id,this.state.user.name,this.state.user.email,this.state.comment,this.state.starCount);
+     
+    //  this.checkReview();
+    this.setState({yourStars:1});  //  1 is temporary it will be replace with current review id link to up line
+     
+  }
+  deleteComment(){
+    this.props.deleteReview(this.state.yourStars);
+    this.setState({starCount:0,comment:'',yourStars:0});
   }
   
   setStar(rating){
-    this.setState({starCount:rating});
+    
+    (this.state.user!=null)?
+    this.setState({starCount:rating})
+    : 
+    this.props.navigation.navigate('Auth') 
   }
+
+  async onShare  () {
+    try {
+      const result = await Share.share({
+        message:
+          'https://huzaifabotique.000webhostapp.com/product/t-shirts-new-designs/'+this.state.data.id,
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          alert("Thank you for sharing")
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
 
   render(){
     const images=this.props.navigation.state.params.item.images.split(',');
@@ -149,6 +173,13 @@ checkAuth2=async ()=>{
   return (   
       
         <ScrollView style={{backgroundColor:'Grey'}}>
+          {(this.props.isLoading)?
+           <View style={{color:'red'}}>
+              <ActivityIndicator size="large" />
+          </View>
+          :
+          null
+          }
          
             
           <View style={{backgroundColor:'red'}}>       
@@ -170,11 +201,11 @@ checkAuth2=async ()=>{
               <Title>Rs. {this.props.navigation.state.params.item.price}</Title>
               <View style={{flexDirection:'row',margin:5}}>
               {(this.state.liked!=0)?
-                <Ionicons onPress={()=>  {this.props.deletefromWishList(this.state.liked),this.setState({liked:0})} } name="md-heart" size={25} color={'#000'} style={{marginRight:10}}/>
+                <Ionicons onPress={()=>  {this.props.deletefromWishList(this.state.liked),this.setState({liked:0})} } name="md-heart" size={25} color={'#000'} style={{marginRight:15}}/>
                 :
-                <Ionicons onPress={()=>  this.checkAuth2()   } name="md-heart-empty" size={25} color={'#000'} style={{marginRight:10}}/>
+                <Ionicons onPress={()=>  this.checkAuth2()   } name="md-heart-empty" size={25} color={'#000'} style={{marginRight:15}}/>
               }
-                <Ionicons name="md-share" size={25} color={'#000'}  />
+                <Ionicons name="md-share" size={25} color={'#000'} onPress={()=>this.onShare()}  />
               </View>
               </View>
               <Paragraph style={{fontSize:20}}> {this.props.navigation.state.params.item.title} </Paragraph>
@@ -232,12 +263,17 @@ checkAuth2=async ()=>{
                       disabled={false}
                       maxStars={5}
                       starSize={30}
-                      rating={this.state.starCount}
-                      selectedStar={(rating) => this.setStar(rating)}
+                      rating={parseInt(this.state.starCount)}
+                      selectedStar={(rating) => this.setStar(rating) }
                     />
                     </View>
                     <View style={{display:(this.state.starCount>0)?'flex':'none'}}>
+                    { (this.state.yourStars==0)?
                       <Text style={{fontSize:14,fontWeight:'bold'}}>Write a review</Text>
+                      :
+                      <Text style={{fontSize:14,fontWeight:'bold'}}>Your review</Text>
+                    }
+
                       <TextInput 
                         placeholder='Describe your experience '
                         onChangeText={(comment)=>{this.setState({comment})}}
@@ -245,7 +281,11 @@ checkAuth2=async ()=>{
                       />
                       <View style={{flexDirection:'row',justifyContent:'space-between'}}>
                         <Button onPress={()=>{this.setState({starCount:0})}} >Cancel</Button>
-                        <Button onPress={()=>this.postComment()} >Post</Button>
+                        { (this.state.yourStars==0)?
+                        <Button onPress={()=>this.postComment()} >Post</Button>                      
+                        :                        
+                        <Button onPress={()=>this.deleteComment()} >Delete</Button>                        
+                        }
                       </View>
                    </View>
               
@@ -255,9 +295,13 @@ checkAuth2=async ()=>{
 
 
 
-          <View style={{backgroundColor:'#2c3e4f',fontSize:'30',alignItems:'center',height:100,padding:20}}>
-          
-            <Ionicons name="logo-facebook" size={25} color={'#000'} style={{marginRight:0}}/>
+          <View style={{backgroundColor:'#2c3e4f',fontSize:'30',alignItems:'center',padding:20}}>
+            <View style={{flexDirection:'row'}}>
+            <Ionicons name="logo-facebook" size={25} color={'#fff'} style={{marginRight:10}}/>
+            <Ionicons name="logo-instagram" size={25} color={'#fff'} style={{marginRight:10}}/>
+            <Ionicons name="logo-youtube" size={25} color={'#fff'} style={{marginRight:10}}/>
+            <Ionicons name="logo-linkedin" size={25} color={'#fff'} style={{marginRight:10}}/>
+            </View>
         <Text style={{color:'white'}}>
              Copyright © Fables 2018. All rights reserved.
         </Text>
@@ -345,7 +389,9 @@ DetailsScreen.navigationOptions = {
 
 const mapStateToProps = (state) => {
   return {
-      data: state.wishList
+      data: state.wishList,
+      reviews:state.reviews,
+      isLoading:state.loading
   }
 }
 
@@ -356,8 +402,11 @@ const mapDispatchToProps = (dispatch) => {
       // additem: (product) => dispatch({ type: 'ADD_TO_CART', payload: product }),
       // loadItems: () => { dispatch(myaction()) },
       addToCart: (product,user) => { dispatch(addaction(product,user)) },
+      loading: () => { dispatch({type:'LOADING',payload:true}) },
       addToWishList: (product,user) => { dispatch(addaction2(product,user)) },
+      addReview: (product_id,name,email,comment,stars) => { dispatch(addaction3(product_id,name,email,comment,stars)) },
       deletefromWishList: (id) => { dispatch(deleteaction2(id)) },
+      deleteReview: (id) => { dispatch(deleteaction3(id)) },
   }
 }
 

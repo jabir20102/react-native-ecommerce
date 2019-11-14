@@ -2,6 +2,7 @@ import * as WebBrowser from 'expo-web-browser';
 import React from 'react';
 import {View,Text,StyleSheet ,Alert,FlatList,ActivityIndicator,ScrollView} from 'react-native';
 import {  Button, Card, Title, Paragraph } from 'react-native-paper';
+import { readDirectoryAsync } from 'expo-file-system';
 
 // var Del = require('rect-native-del'); 
 
@@ -19,11 +20,10 @@ export default class FlashProducts extends React.Component {
   }
 
   fetchData = async () => {
+    console.log(this.state.page);
     this.setState({ loading: true });
-    const response = await fetch( 
-      // `https://randomuser.me/api?results=6&seed=hi&page=${this.state.page}`
-      // `http://192.168.3.135/fyp/getProducts/?offer=true&limit=2&page=${this.state.page}`
-      `http://huzaifabotique.000webhostapp.com/getProducts/?offer=true&limit=2&page=${this.state.page}`
+    const response = await fetch(
+      `http://huzaifabotique.000webhostapp.com/getProducts/?offer=true&limit=1&page=${this.state.page}`
     );
    
     const json = await response.json();
@@ -40,7 +40,6 @@ export default class FlashProducts extends React.Component {
       data: [...state.data, ...json],
       loading: false
     }));
-    // console.log("loaded flash .. "+this.state.page);
   };
 
   handleEnd = () => {
@@ -61,6 +60,7 @@ export default class FlashProducts extends React.Component {
     } else {
       return (
         <View style={{backgroundColor:'#cdcdcd'}}>
+          <Text style={{backgroundColor:'red',opacity:0.6,padding:10,marginTop:5,marginLeft:5,width:100,color:'white'}}>Flash Sale</Text>
          
         <FlatList
         // onMomentumScrollEnd={this.handleEnd}
@@ -70,16 +70,16 @@ export default class FlashProducts extends React.Component {
             horizontal={true}
             renderItem={({item}) =>  
         
-            <Card style={{margin:5,width:170}}
+            <Card style={{margin:5,width:150}}
              onPress={() => this.props.navigation.navigate('Details',{item:item,offer:item.percent})}>     
             <Card.Content>       
             <Card.Cover source={{ uri:"http://huzaifabotique.000webhostapp.com/"+ item.url }}
-             style={{ height: 150, left: 0, right: 0 }}
-             resizeMode="contain"  />
+             style={{ height: 100, left: 0, right: 0 }}
+             resizeMode="cover"  />
                <View style={{ position: 'absolute', backgroundColor:'yellow',opacity:0.6,padding:5 }}>
                    <Text style={{fontWeight:'bold'}}>{item.percent*100}% off</Text>
                </View>
-                 <Text>{item.title}</Text>
+                 <Text> {item.title.length>30?item.title.substring(0, 30)+"...":item.title}</Text>
                </Card.Content>
                <Card.Actions>
                {/* <Del>Rs. {item.price}</Del> */}

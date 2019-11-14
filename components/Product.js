@@ -17,6 +17,26 @@ import { Ionicons } from '@expo/vector-icons';
       starCount: rating
     });
   };
+  onClick=()=> {
+    let formData=new FormData();
+    formData.append('id',this.props.item.id);
+    fetch(`https://huzaifabotique.000webhostapp.com/getProducts` // post
+    ,{
+      method: 'POST',
+      body:formData,
+      }
+)
+.then((response) => response.json())
+    .then((json) => {
+     console.log(json)
+        
+    })
+    .catch((error) => {
+      console.error(error);
+      alert(error);
+    });
+    this.props.navigation.navigate('Details',{item:this.props.item,offer:1});
+  };
  render(){
       return (
             <Card  key={this.props.item.id} style={{margin:3,paddingTop:5,paddingBottom:5,width:350}} >     
@@ -30,8 +50,8 @@ import { Ionicons } from '@expo/vector-icons';
                   </View>
                   <View style={{width:190}}>
                   <Text  style={{fontWeight:'400',fontSize:16}} 
-                     onPress={() => this.props.navigation.navigate('Details',{item:this.props.item,offer:1})} > 
-                    {this.props.item.title}
+                     onPress={() => this.onClick()} > 
+                    <Text> {this.props.item.title.length>30?this.props.item.title.substring(0, 30)+"...":this.props.item.title}</Text>
                     {/* {this.props.item.name.last.length>5?this.props.item.name.last.substring(0, 5)+"...":this.props.item.name.last} */}
                   </Text> 
                   <Text  style={{fontWeight:'400',fontSize:20}}>Rs: {this.props.item.price}</Text>

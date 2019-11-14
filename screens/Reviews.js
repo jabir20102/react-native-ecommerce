@@ -19,18 +19,18 @@ export default class Reviews extends React.Component {
   render() {
     
       return (
-        <View style={{backgroundColor:'#cdcdcd',paddingBottom:50}}>
+        <View style={{backgroundColor:'#cdcdcd',paddingBottom:50,flex:1}}>
           <View style={{backgroundColor:'#fff',marginTop:5,marginBottom:5,padding:10,justifyContent:'center',alignItems:'center'}}>
             <View style={{flexDirection:'row'}}>
             <Text style={{fontSize:15}}>{this.props.navigation.state.params.item.average}</Text>
             <Text style={{}}> / 5 </Text>
             <StarRating
-                  disabled={false}
-                  maxStars={5}
-                  starSize={15}
-                  fullStarColor={'#f00'}
-                  rating={parseFloat(this.props.navigation.state.params.item.average)}
-                  />
+              disabled={false}
+              maxStars={5}
+              starSize={15}
+              fullStarColor={'#f00'}
+              rating={parseFloat(this.props.navigation.state.params.item.average)}
+              />
 
             </View>
             <Text >{this.props.navigation.state.params.item.total} Rattings</Text>

@@ -4,12 +4,13 @@ import { createStackNavigator, createBottomTabNavigator,createAppContainer,creat
 
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
-import LinksScreen from '../screens/LinksScreen';
+import MyCartScreen from '../screens/MyCartScreen';
 import DetailsScreen from '../screens/DetailsScreen';
 import SubCategory from '../screens/SubCategory';
 
 import MyAccountScreen from '../screens/MyAccountScreen';
 import MyWishListScreen from '../screens/MyWishListScreen';
+import MyReviewsScreen from '../screens/MyReviewsScreen';
 import SignInScreen from '../screens/SignInScreen';
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 
@@ -65,25 +66,25 @@ HomeStack.navigationOptions = {
 
 HomeStack.path = '';
 
-const LinksStack = createStackNavigator(
+const CartStack = createStackNavigator(
   {
     Links:{
-      screen:LinksScreen
+      screen:MyCartScreen
     } 
   },
   config
 );
 
-LinksStack.navigationOptions = {
+CartStack.navigationOptions = {
   tabBarLabel: 'Cart',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon focused={focused} badge='cart' name={Platform.OS === 'ios' ? 'ios-cart' : 'md-cart'} />
   ),
 };
-LinksStack.path = '';
+CartStack.path = '';
 
 
-const AppStack = createStackNavigator({ MyAccount: MyAccountScreen,MyWishList:MyWishListScreen});
+const AppStack = createStackNavigator({ MyAccount: MyAccountScreen,MyWishList:MyWishListScreen,MyReviews:MyReviewsScreen});
 // const WishStack = createStackNavigator({ myWishList: MyWishList });
 // const SettingStack = createStackNavigator({ mySettings: MySettings });
 const AuthStack = createStackNavigator({ SignIn: SignInScreen,Signup:SignupScreen });
@@ -111,7 +112,7 @@ const SettingsStack = createAppContainer(
 // );
 
 SettingsStack.navigationOptions = {
-  tabBarLabel: 'Settings',
+  tabBarLabel: 'My Account',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon focused={focused} badge='account' name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} />
   ),
@@ -122,7 +123,7 @@ SettingsStack.path = '';
 
 const tabNavigator = createBottomTabNavigator({
   HomeStack,
-  LinksStack,
+  CartStack,
   SettingsStack,
 },
   {

@@ -10,6 +10,11 @@ const cartItems = (state = [], action) => {
             return state=action.payload
         case 'DEL_ITEM':
             return state.filter(state => state.cart_id !== action.payload)
+        case 'EDIT_WishList':
+            objIndex = state.findIndex((obj => obj.cart_id == action.payload.id))
+            state[objIndex].qty = action.payload.qty
+            return state
+    
         case 'ERROR':
             return [...state, action.payload]
     }

@@ -90,7 +90,7 @@ export default class FilterProducts extends React.Component {
             <Product navigation={this.props.navigation}  item={item} />            
 
           }
-          // keyExtractor={({id}, index) => index}
+          keyExtractor={({id}, index) => '_'+index}
           
           /> 
                    

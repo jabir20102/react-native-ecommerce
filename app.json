@@ -27,7 +27,8 @@
       "supportsTablet": true
     },
     "description": "",
-    "entryPoint": "node_modules/expo/AppEntry.js"
+    "entryPoint": "node_modules/expo/AppEntry.js",
+    "githubUrl": "https://github.com/jabir20102/react-native-ecommerce.git"
   },
   "displayName": "Shopping Ki Dunya",
   "name": "shoppingKiDunya"
